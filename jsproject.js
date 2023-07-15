@@ -1,24 +1,29 @@
 const form=document.getElementById('form')
 form.addEventListener('submit',addToTable)
-let table1=''
-let table2=''
-let table3=''
+let element=''
+let sum
+let word="Total cost of product is:-"+sum
+document.getElementById('text').innerHTML=word
+
 function addToTable(e){
     e.preventDefault()
     const price=document.getElementById('chooseprice').value
-    const dish=document.getElementById('choosedish').value
-    const table=document.getElementById('table-list').value
+    const name=document.getElementById('choosename').value
+    
+      
     const obj={
         price,
-        dish,
-        table
+        name
+    
+        
     }
     //console.log(obj)
     moveToAxios(obj)
 }
 const moveToAxios=(obj)=>{
-    axios.post("https://crudcrud.com/api/9f5a3b7333a94e90a8c99709072c8814/restorant",obj)
+    axios.post("https://crudcrud.com/api/c95cca20ddd746d288970e2c3ac174a3/restorant",obj)
     .then((res)=>{
+        sum+=Math.floor(res.data.price)
         displayOnTables(res.data)
     })
     .catch((error)=>{
@@ -27,61 +32,43 @@ const moveToAxios=(obj)=>{
 }
 
 const displayOnTables=(obj)=>{
-    console.log(obj.table)
-    if(obj.table==='table1')
-    {
-        table1+=`<li id=${obj._id}> ${obj.price} ${obj.dish} ${obj.table} <button onclick={deletOrder('${obj._id}','${obj.table}')}>Delete</button>`
-        const tableDisplay1=document.getElementById('table1')
-        tableDisplay1.innerHTML=table1
-    }
-    if(obj.table==="table2")
-    {
-        table2+=`<li id=${obj._id}> ${obj.price} ${obj.dish} ${obj.table} <button  onclick={deletOrder('${obj._id}','${obj.table}')}>Delete</button>`
-        const tableDisplay2=document.getElementById('table2')
-        tableDisplay2.innerHTML=table2
-    }
-    if(obj.table==="table3")
-    {
-        table3+=`<li id=${obj._id}> ${obj.price} ${obj.dish} ${obj.table} <button  onclick={deletOrder('${obj._id}','${obj.table}')}>Delete</button>`
-        const tableDisplay3=document.getElementById('table3')
-        tableDisplay3.innerHTML=table3
-    }
+   // console.log(obj.table)
+    
+        element+=`<li id=${obj._id} style="font-weight: bolder;font-size: x-large;color: rgb(206, 209, 186);"> ${obj.price} ${obj.name}  <button onclick={deletOrder('${obj._id}',${obj.price})}>Delete</button>`
+        const tableDisplay=document.getElementById('product-list')
+        tableDisplay.innerHTML=element
+       
    
+        showSum()
+}
+
+const showSum=()=>{
+    word="Total cost of product is:-"+sum
+    document.getElementById('text').innerHTML=word
 }
 
 const showTables=()=>{
-    axios.get("https://crudcrud.com/api/9f5a3b7333a94e90a8c99709072c8814/restorant")
+    sum=0;
+    axios.get("https://crudcrud.com/api/c95cca20ddd746d288970e2c3ac174a3/restorant")
      .then((res)=>{
         for(var i=0;i<res.data.length;i++)
         {
+            sum+=Math.floor(res.data[i].price)
             displayOnTables(res.data[i])
         }
+        
      })
 }
-const deletOrder=(id,table)=>{
-   // console.log(table)
-    axios.delete(`https://crudcrud.com/api/9f5a3b7333a94e90a8c99709072c8814/restorant/${id}`)
+const deletOrder=(id,price)=>{
+    
+    axios.delete(`https://crudcrud.com/api/c95cca20ddd746d288970e2c3ac174a3/restorant/${id}`)
      .then((res)=>{
-        if(table==='table1')
-        {
-            const tbl1=document.getElementById('table1')
+            sum=sum-Math.floor(price);
+            const tbl1=document.getElementById('product-list')
             const childElement1=document.getElementById(id)
             if(childElement1)
               tbl1.removeChild(childElement1)
-        }
-        else if(table==='table2')
-        {
-            const tbl2=document.getElementById('table2')
-            const childElement2=document.getElementById(id)
-            if(childElement2)
-            tbl2.removeChild(childElement2)
-        }
-        else{
-            const tbl3=document.getElementById('table3')
-            const childElement3=document.getElementById(id)
-            if(childElement3)
-            tbl3.removeChild(childElement3)
-        }
+              showSum()
      })
      .catch((error)=>{
         console.log(error)
